@@ -7,8 +7,11 @@ import (
 	"github.com/astaxie/beego/httplib"
 )
 
+var SessionDataHeader = make(map[string]string)
+
 func HttpDoGet(targetUrl string, header map[string]string) ([]byte, error) {
 	req := httplib.Get(targetUrl)
+	req.Header("user-agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36")
 	if header != nil {
 		for k, v := range header {
 			req.Header(k, v)
@@ -41,4 +44,8 @@ func UrlConvert(baseUrl string, queryParm map[string]string) (string, error) {
 	}
 	vdUrl.RawQuery = q.Encode()
 	return vdUrl.String(), nil
+}
+
+func SetCookie(sessionData string) {
+	SessionDataHeader["Cookie"] = sessionData
 }

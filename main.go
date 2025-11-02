@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 
@@ -9,14 +8,23 @@ import (
 )
 
 func main() {
-	vd, err := lib.GetVideoDetail("BV1D3411N7fs")
+	vd, err := lib.GetVideoDetail("BV15AzhYSEbm")
 	if err != nil {
 		fmt.Println(err)
 	}
 	if vsd, err := lib.GetVideoStream(vd.Data.Aid, vd.Data.Cid); err != nil {
 		fmt.Println(err)
 	} else {
-		s, _ := json.Marshal(vsd)
-		log.Printf("vsd: %s\n", s)
+		if err := lib.DownloadFile("/home/wind/tmp/motrix/bldownload", vd.Data.Title+".video", vsd.Data.Dash.Video[0].BaseUrl); err != nil {
+			fmt.Println(err)
+		} else {
+			log.Printf("video download: %s\n", vd.Data.Title)
+		}
+
+		if err := lib.DownloadFile("/home/wind/tmp/motrix/bldownload", vd.Data.Title+".audio", vsd.Data.Dash.Audio[0].BaseUrl); err != nil {
+			fmt.Println(err)
+		} else {
+			log.Printf("audio download: %s\n", vd.Data.Title)
+		}
 	}
 }

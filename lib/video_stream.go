@@ -2,6 +2,7 @@ package lib
 
 import (
 	"encoding/json"
+	"errors"
 	"strconv"
 
 	"github.com/saltfishh/blDownLoader/entity/bilibili"
@@ -13,7 +14,7 @@ func GetVideoStream(avid, cid int) (bilibili.VideoStreamData, error) {
 	m := make(map[string]string)
 	m["avid"] = strconv.Itoa(avid)
 	m["cid"] = strconv.Itoa(cid)
-	m["qn"] = strconv.Itoa(120)
+	m["qn"] = strconv.Itoa(160)
 	m["fnver"] = strconv.Itoa(0)
 	m["fourk"] = strconv.Itoa(1)
 	m["fnval"] = strconv.Itoa(80)
@@ -21,13 +22,15 @@ func GetVideoStream(avid, cid int) (bilibili.VideoStreamData, error) {
 	if err != nil {
 		return vsd, err
 	}
-	//log.Printf("vs: %s\n", vs)
-	rsp, err := HttpDoGet(vs, m)
+	rsp, err := HttpDoGet(vs, SessionDataHeader)
 	if err != nil {
 		return vsd, err
 	}
 	if err := json.Unmarshal(rsp, &vsd); err != nil {
 		return bilibili.VideoStreamData{}, err
+	}
+	if vsd.Code != 0 {
+		return bilibili.VideoStreamData{}, errors.New("fetch stream error: " + vsd.ErrMsg.Message)
 	}
 	return vsd, nil
 }
