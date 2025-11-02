@@ -2,13 +2,14 @@ package lib
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 
 	"github.com/saltfishh/blDownLoader/entity/bilibili"
 	"github.com/saltfishh/blDownLoader/entity/consts"
 )
 
-func GetVideoDetail(bv string) bilibili.VideoDetailsData {
+func GetVideoDetail(bv string) (bilibili.VideoDetailsData, error) {
 	vd := bilibili.VideoDetailsData{}
 	burl, err := UrlConvert(consts.VideoDetailsUrl, map[string]string{"bvid": bv})
 	if err != nil {
@@ -21,6 +22,9 @@ func GetVideoDetail(bv string) bilibili.VideoDetailsData {
 	if err := json.Unmarshal(rsp, &vd); err != nil {
 		log.Printf("Unmarshal: %s", err)
 	}
+	if vd.Code != 0 {
+		return vd, errors.New("fail to get video detail: " + vd.ErrMsg.Message)
+	}
 	//log.Printf("VideoDetails: %d", vd.Data.Owner.Mid)
-	return vd
+	return vd, nil
 }
