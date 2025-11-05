@@ -3,17 +3,18 @@ package lib
 import (
 	"log"
 	"os"
+	"strings"
 )
 
-var DownloadPath = "/home/wind/tmp/motrix/bldownload/"
+var DownloadPath = ""
 
 func Downloader(bvid string) error {
 	vd, err := GetVideoDetail(bvid)
 	if err != nil {
 		return err
 	}
-	videoFile := vd.Data.Title + ".video"
-	audioFile := vd.Data.Title + ".audio"
+	videoFile := strings.ReplaceAll(vd.Data.Title+".video", " ", "")
+	audioFile := strings.ReplaceAll(vd.Data.Title+".audio", " ", "")
 	vsd, err := GetVideoStream(vd.Data.Aid, vd.Data.Cid)
 	if err != nil {
 		return err
@@ -24,10 +25,11 @@ func Downloader(bvid string) error {
 	if err := DownloadFile(DownloadPath, audioFile, vsd.Data.Dash.Audio[0].BaseUrl); err != nil {
 		return err
 	}
-	if err := MergeAudioVideo(DownloadPath+videoFile, DownloadPath+audioFile, DownloadPath+vd.Data.Title+".mp4"); err != nil {
-		return err
-	}
-	clearCache([]string{DownloadPath + videoFile, DownloadPath + audioFile})
+	/*	if err := MergeAudioVideo(DownloadPath+videoFile, DownloadPath+audioFile, DownloadPath+vd.Data.Title+".mp4"); err != nil {
+			return err
+		}
+		clearCache([]string{DownloadPath + videoFile, DownloadPath + audioFile})
+	*/
 	return nil
 }
 
