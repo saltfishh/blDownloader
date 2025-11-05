@@ -7,31 +7,63 @@ import (
 )
 
 func DownloadFile(filepath, fileName string, url string) error {
-	if f, err := os.Open(filepath); err != nil {
+
+	/*
+		f, err := os.Create(fullPath)
+		if err != nil {
+			if os.IsExist(err) {
+				log.Printf("file %s already exists", fullPath)
+			}
+			return err
+		}
+		defer f.Close()
+		resp, err := HttpDoGet(url, map[string]string{"referer": "https://www.bilibili.com"})
+		if err != nil {
+			return err
+		}
+		if i, err := f.Write(resp); err != nil {
+			return err
+		} else {
+			log.Printf("download video %d bytes", i)
+		}
+	*/
+
+	return nil
+}
+
+func CreateFile(filefolder, fileName, url string, size int64) (*os.File, error) {
+	if f, err := os.Open(filefolder); err != nil {
 		if f != nil {
 			defer f.Close()
 		}
 		if os.IsNotExist(err) {
-			log.Printf("download folder %s does not exist, create", filepath)
-			if err := os.MkdirAll(filepath, 0755); err != nil {
-				return err
+			log.Printf("download folder %s does not exist, create", filefolder)
+			if err := os.MkdirAll(filefolder, 0755); err != nil {
+				return nil, err
 			}
 		}
 	}
-	fullPath := path.Join(filepath, fileName)
+	fullPath := path.Join(filefolder, fileName)
+	size, err := GetStreamSize(url)
+	if err != nil {
+		return nil, err
+	}
 	f, err := os.Create(fullPath)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	defer f.Close()
-	resp, err := HttpDoGet(url, map[string]string{"referer": "https://www.bilibili.com"})
-	if err != nil {
-		return err
+	if err := f.Truncate(size); err != nil {
+		return nil, err
 	}
-	if i, err := f.Write(resp); err != nil {
-		return err
-	} else {
-		log.Printf("download video %d bytes", i)
-	}
+	return f, nil
+}
+
+func SliceWrite(size int64, f *os.File) error {
+	//left := size
+	//HttpDoGet()
 	return nil
+}
+
+func SetDownloadFolder(folder string) {
+	DownloadPath = folder
 }
