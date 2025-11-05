@@ -21,6 +21,9 @@ func DownloadFile(filepath, fileName string, url string) error {
 	fullPath := path.Join(filepath, fileName)
 	f, err := os.Create(fullPath)
 	if err != nil {
+		if os.IsExist(err) {
+			log.Printf("file %s already exists", fullPath)
+		}
 		return err
 	}
 	defer f.Close()

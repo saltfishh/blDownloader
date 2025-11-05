@@ -2,29 +2,13 @@ package main
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/saltfishh/blDownLoader/lib"
 )
 
 func main() {
-	vd, err := lib.GetVideoDetail("BV15AzhYSEbm")
-	if err != nil {
+	//lib.SetCookie("SESSDATA=48439129%2C1777700085%2C9b13d%2Ab1CjDwK2eMNyncWTBhlD49V6ohXEb7_JNYFV2yUcSjrYjINlkbbnGMA1C9eEFSnDOG9kcSVnVtNEI1VHV5V0F0V3BYUTJfdEttaWlqdmhNZWtLLXl4ZThTVnpxLUhqc29PX3B1NnhPNzZETllMUlh5WWEtTmNOVG14SGVaRmFxbk9sVmE5dXFvQ25BIIEC")
+	if err := lib.Downloader(""); err != nil {
 		fmt.Println(err)
-	}
-	if vsd, err := lib.GetVideoStream(vd.Data.Aid, vd.Data.Cid); err != nil {
-		fmt.Println(err)
-	} else {
-		if err := lib.DownloadFile("/home/wind/tmp/motrix/bldownload", vd.Data.Title+".video", vsd.Data.Dash.Video[0].BaseUrl); err != nil {
-			fmt.Println(err)
-		} else {
-			log.Printf("video download: %s\n", vd.Data.Title)
-		}
-
-		if err := lib.DownloadFile("/home/wind/tmp/motrix/bldownload", vd.Data.Title+".audio", vsd.Data.Dash.Audio[0].BaseUrl); err != nil {
-			fmt.Println(err)
-		} else {
-			log.Printf("audio download: %s\n", vd.Data.Title)
-		}
 	}
 }
