@@ -4,6 +4,8 @@ import (
 	"log"
 	"os"
 	"path"
+
+	"github.com/joho/godotenv"
 )
 
 func DownloadFile(filepath, fileName string, url string) error {
@@ -31,39 +33,58 @@ func DownloadFile(filepath, fileName string, url string) error {
 	return nil
 }
 
-func CreateFile(filefolder, fileName, url string, size int64) (*os.File, error) {
-	if f, err := os.Open(filefolder); err != nil {
-		if f != nil {
-			defer f.Close()
-		}
-		if os.IsNotExist(err) {
-			log.Printf("download folder %s does not exist, create", filefolder)
-			if err := os.MkdirAll(filefolder, 0755); err != nil {
-				return nil, err
-			}
-		}
-	}
-	fullPath := path.Join(filefolder, fileName)
+func CreateFile(fileName, url string) (*os.File, int64, error) {
+	fullPath := path.Join(DownloadPath, fileName)
 	size, err := GetStreamSize(url)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	f, err := os.Create(fullPath)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	if err := f.Truncate(size); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return f, nil
-}
-
-func SliceWrite(size int64, f *os.File) error {
-	//left := size
-	//HttpDoGet()
-	return nil
+	return f, size, nil
 }
 
 func SetDownloadFolder(folder string) {
 	DownloadPath = folder
+}
+
+func init() {
+	if _, err := os.Stat(".env"); err != nil {
+		if os.IsNotExist(err) {
+			if f, err := os.Create(".env"); err != nil {
+				log.Fatalf("create .env file failed: %v", err)
+			} else {
+				f.Close()
+			}
+		}
+	}
+	if err := godotenv.Load(".env"); err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	biliSession := os.Getenv("BILI_SESSION")
+	downloadFolder := os.Getenv("BILI_DOWNLOAD_FOLDER")
+	if downloadFolder == "" {
+		SetDownloadFolder("./download")
+	} else {
+		SetDownloadFolder(downloadFolder)
+	}
+	if biliSession != "" {
+		SetCookie(biliSession)
+	}
+	log.Printf("download folder is %s", DownloadPath)
+	if f, err := os.Open(downloadFolder); err != nil {
+		if f != nil {
+			defer f.Close()
+		}
+		if os.IsNotExist(err) {
+			log.Printf("download folder %s does not exist, create", DownloadPath)
+			if err := os.MkdirAll(downloadFolder, 0755); err != nil {
+			}
+		}
+	}
 }

@@ -59,7 +59,7 @@ func GetStreamSize(url string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	size := rsp.Header.Get("Content-Length")
+	size := rsp.Header.Get("content-length")
 	if size == "0" {
 		return 0, nil
 	}
